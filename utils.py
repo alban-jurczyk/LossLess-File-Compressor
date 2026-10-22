@@ -6,5 +6,5 @@ def num_to_bin_str(num, bits_length=None):
 
 def append_str(filename, string):
 	with open(filename, "ab") as f:
-		for num in [string[i:i+8] for i in range(0, len(string), 8)]:
+		for num in [string[i:i+8] for i in range(0, len(string), 8)]: #This line was bought to you by OpenAI
 			f.write(int(num, 2).to_bytes(1, "big"))

@@ -38,7 +38,7 @@ def compress(FILE_PATH):
 			for n in global_table:
 				if n is not None:
 					fcmp.write(n.to_bytes(2, "big"))
-	print(global_table[1:])
+	print(global_table)
 
 def decompress(FILE_PATH):
 	import utils as utils
@@ -67,7 +67,7 @@ def decompress(FILE_PATH):
 			else:
 				last_was_zero = False
 					
-	global_table = []
+	global_table = [None]
 	with open(FILE_PATH, "rb") as f:
 		f.seek(table_start_idx)
 		while True:
@@ -84,6 +84,23 @@ def decompress(FILE_PATH):
 	print(global_table)
 	print(checkpoints)
 
+	from part_comp import part_decompressor
+
+	for checkpoint, address in enumerate(checkpoints[:-1]):
+		with open(FILE_PATH, "rb") as f:
+			f.seek(address)
+			raw_length = "".join(f"{b:08b}" for b in f.read(2))
+			bits_length = int(raw_length, 2)
+			print("len", bits_length)
+
+			whole = f.read(checkpoints[checkpoint+1]-address) #Don't question my incredible skills at naming variables
+			bits = "".join(f"{b:08b}" for b in whole) #I don't understand this line, ChatGPT wrote it.
+
+			#La quantite de bits que je bouffe actuellement c abberant
+			#Y'a quand meme mieux a faire de son apres-midi
+
+			decomp_part = part_decompressor(bits, bits_length, global_table)
+			print(decomp_part)
 
 
 if __name__ == "__main__":
