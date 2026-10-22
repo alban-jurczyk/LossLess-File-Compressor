@@ -1,0 +1,5 @@
+__pycache__/
+.DS_Store
+*.cmp
+*.zip
+random_file.txt
