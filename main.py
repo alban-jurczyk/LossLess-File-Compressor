@@ -23,41 +23,50 @@ def compress(FILE_PATH):
 					break
 
 			with open(CMP_FILE_PATH, "ab") as fcmp:
-				fcmp.write((0).to_bytes(2, "big"))
-				comp_part = utils.num_to_bin_str(bit_length, 5)
+				fcmp.write(bit_length.to_bytes(2, "big"))
 
-				for n in res:
-					comp_part += utils.num_to_bin_str(n, bit_length)
+			comp_part = ""
+			for n in res:
+				comp_part += utils.num_to_bin_str(n, bit_length)
 
 			utils.append_str(CMP_FILE_PATH, comp_part)
+			with open(CMP_FILE_PATH, "ab") as fcmp:
+				fcmp.write((0).to_bytes(2, "big"))
 
 
 		with open(CMP_FILE_PATH, "ab") as fcmp:
-			fcmp.write((0).to_bytes(2, "big"))
 			for n in global_table:
 				if n is not None:
 					fcmp.write(n.to_bytes(2, "big"))
-				else:
-					fcmp.write((0).to_bytes(2, "big"))
 	print(global_table[1:])
 
 def decompress(FILE_PATH):
 	import utils as utils
 
-	read_steps = 2
+	read_steps = 1
 	table_start_idx = 0
+	checkpoints = []
 	with open(FILE_PATH, "rb") as f:
 		address = -read_steps
 		table_start_idx = 0
+		last_was_zero = False
 		while True:
 			part = f.read(read_steps)
 			address += read_steps
 			if not part:
 				break
 
-			if part[0] + part[1] == 0:
-				table_start_idx = address+2
-
+			if part[0] == 0:
+				if last_was_zero:
+					table_start_idx = address
+					checkpoints.append(address)
+					if len(checkpoints)>=2 and checkpoints[-2] == address-1:
+						checkpoints.pop(-2)
+				else:
+					last_was_zero = True
+			else:
+				last_was_zero = False
+					
 	global_table = []
 	with open(FILE_PATH, "rb") as f:
 		f.seek(table_start_idx)
@@ -66,10 +75,15 @@ def decompress(FILE_PATH):
 			if not raw:
 				break
 
-			num = int(utils.num_to_bin_str(raw[0], 8) + utils.num_to_bin_str(raw[1], 8), 2)
+			if len(raw) >= 2:
+				num = int(utils.num_to_bin_str(raw[0], 8) + utils.num_to_bin_str(raw[1], 8), 2)
+			else:
+				num = raw[0]
 
 			global_table.append(num)
 	print(global_table)
+	print(checkpoints)
+
 
 
 if __name__ == "__main__":
