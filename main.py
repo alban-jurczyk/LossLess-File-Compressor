@@ -49,6 +49,6 @@ if __name__ == "__main__":
 		print("Missing argument. Requires Filename")
 		print("	Usage : main [filename] [passes]")
 		print("	[filename] path to the file you want to compress")
-		print("	[passes] maximum number of time you want to compress he file.\n	Leaving it blank compresses the maximum amount of times")
+		#print("	[passes] maximum number of time you want to compress he file.\n	Leaving it blank compresses the maximum amount of times")
 
 	compress(argv[1])
