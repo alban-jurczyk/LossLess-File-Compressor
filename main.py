@@ -95,10 +95,7 @@ def decompress(FILE_PATH):
 
 			whole = f.read(checkpoints[checkpoint+1]-address) #Don't question my incredible skills at naming variables
 			bits = "".join(f"{b:08b}" for b in whole) #I don't understand this line, ChatGPT wrote it.
-
-			#La quantite de bits que je bouffe actuellement c abberant
-			#Y'a quand meme mieux a faire de son apres-midi
-
+			
 			decomp_part = part_decompressor(bits, bits_length, global_table)
 			print(decomp_part)
 
