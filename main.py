@@ -19,26 +19,35 @@ def compress(FILE_PATH):
 			maximum = len(global_table)-1
 			for power in range(16):
 				if 2**power >= maximum:
-					byte_length = power
+					bit_length = power
 					break
 
 			comp_part = ""
 
 			with open(CMP_FILE_PATH, "ab") as fcmp:
 				comp_part += "0"*16
-				comp_part += utils.num_to_bin_str(power, 5)
+				comp_part += utils.num_to_bin_str(bit_length, 5)
 
 				for n in res:
-					comp_part += utils.num_to_bin_str(n, power)
+					comp_part += utils.num_to_bin_str(n, bit_length)
 
 			utils.append_str(CMP_FILE_PATH, comp_part)
 
+
+		utils.append_str(CMP_FILE_PATH, "0"*8)
 		with open(CMP_FILE_PATH, "ab") as fcmp:
 			for n in global_table:
 				if n is not None:
 					fcmp.write(n.to_bytes(2, "big"))
 				else:
 					fcmp.write(int("0").to_bytes(2, "big"))
+
+def decompress(FILE_PATH):
+	import utils as utils
+
+	global_table = []
+
+
 
 if __name__ == "__main__":
 	from sys import argv
