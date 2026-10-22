@@ -22,11 +22,9 @@ def compress(FILE_PATH):
 					bit_length = power
 					break
 
-			comp_part = ""
-
 			with open(CMP_FILE_PATH, "ab") as fcmp:
-				comp_part += "0"*16
-				comp_part += utils.num_to_bin_str(bit_length, 5)
+				fcmp.write((0).to_bytes(2, "big"))
+				comp_part = utils.num_to_bin_str(bit_length, 5)
 
 				for n in res:
 					comp_part += utils.num_to_bin_str(n, bit_length)
@@ -34,19 +32,44 @@ def compress(FILE_PATH):
 			utils.append_str(CMP_FILE_PATH, comp_part)
 
 
-		utils.append_str(CMP_FILE_PATH, "0"*8)
 		with open(CMP_FILE_PATH, "ab") as fcmp:
+			fcmp.write((0).to_bytes(2, "big"))
 			for n in global_table:
 				if n is not None:
 					fcmp.write(n.to_bytes(2, "big"))
 				else:
-					fcmp.write(int("0").to_bytes(2, "big"))
+					fcmp.write((0).to_bytes(2, "big"))
+	print(global_table[1:])
 
 def decompress(FILE_PATH):
 	import utils as utils
 
-	global_table = []
+	read_steps = 2
+	table_start_idx = 0
+	with open(FILE_PATH, "rb") as f:
+		address = -read_steps
+		table_start_idx = 0
+		while True:
+			part = f.read(read_steps)
+			address += read_steps
+			if not part:
+				break
 
+			if part[0] + part[1] == 0:
+				table_start_idx = address+2
+
+	global_table = []
+	with open(FILE_PATH, "rb") as f:
+		f.seek(table_start_idx)
+		while True:
+			raw = f.read(2)
+			if not raw:
+				break
+
+			num = int(utils.num_to_bin_str(raw[0], 8) + utils.num_to_bin_str(raw[1], 8), 2)
+
+			global_table.append(num)
+	print(global_table)
 
 
 if __name__ == "__main__":
@@ -61,3 +84,6 @@ if __name__ == "__main__":
 		#print("	[passes] maximum number of time you want to compress he file.\n	Leaving it blank compresses the maximum amount of times")
 
 	compress(argv[1])
+	decompress(argv[1]+".cmp")
+
+
