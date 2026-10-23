@@ -6,7 +6,7 @@ def compress(FILE_PATH):
 	with open(CMP_FILE_PATH, "w"):
 		pass
 
-	CHUNK = 1024   # 1 KiB
+	CHUNK = 1024*3   # 1 KiB
 
 	global_table = [None]
 	with open(FILE_PATH, "rb") as f:
@@ -18,7 +18,7 @@ def compress(FILE_PATH):
 
 			maximum = len(global_table)-1
 			for power in range(16):
-				if 2**power >= maximum:
+				if 2**power > maximum:
 					bit_length = power
 					break
 
@@ -28,7 +28,6 @@ def compress(FILE_PATH):
 			comp_part = ""
 			for n in res:
 				comp_part += utils.num_to_bin_str(n, bit_length)
-
 			utils.append_str(CMP_FILE_PATH, comp_part)
 			with open(CMP_FILE_PATH, "ab") as fcmp:
 				fcmp.write((0).to_bytes(2, "big"))
@@ -45,7 +44,7 @@ def decompress(FILE_PATH):
 
 	read_steps = 1
 	table_start_idx = 0
-	checkpoints = []
+	checkpoints = [0]
 	with open(FILE_PATH, "rb") as f:
 		address = -read_steps
 		table_start_idx = 0
@@ -77,8 +76,7 @@ def decompress(FILE_PATH):
 
 			if len(raw) >= 2:
 				num = int(utils.num_to_bin_str(raw[0], 8) + utils.num_to_bin_str(raw[1], 8), 2)
-			else:
-				num = raw[0]
+
 
 			global_table.append(num)
 	print(global_table)
@@ -86,18 +84,26 @@ def decompress(FILE_PATH):
 
 	from part_comp import part_decompressor
 
-	for checkpoint, address in enumerate(checkpoints[:-1]):
+	with open(FILE_PATH+".dcmp", "w") as f:
+		f.write("")
+
+	for checkpoint, address in enumerate(checkpoints[:-2]):
 		with open(FILE_PATH, "rb") as f:
 			f.seek(address)
 			raw_length = "".join(f"{b:08b}" for b in f.read(2))
 			bits_length = int(raw_length, 2)
-			print("len", bits_length)
 
-			whole = f.read(checkpoints[checkpoint+1]-address) #Don't question my incredible skills at naming variables
+			whole = f.read(checkpoints[checkpoint+1]-address -2) #Don't question my incredible skills at naming variables
 			bits = "".join(f"{b:08b}" for b in whole) #I don't understand this line, ChatGPT wrote it.
+
+			print("New Checkpoint !!")
 			
 			decomp_part = part_decompressor(bits, bits_length, global_table)
-			print(decomp_part)
+			with open(FILE_PATH+".dcmp", "ab") as f:
+				for num in decomp_part:
+					if num is not None:
+						f.write(num.to_bytes(8, "big"))
+
 
 
 if __name__ == "__main__":
@@ -113,5 +119,3 @@ if __name__ == "__main__":
 
 	compress(argv[1])
 	decompress(argv[1]+".cmp")
-
-

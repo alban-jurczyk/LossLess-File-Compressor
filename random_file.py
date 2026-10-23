@@ -4,7 +4,8 @@ import os
 random_str = ""
 
 for i in range(10000):
-	random_str += chr(random.randint(97, 122))
+	random_str += str(i)+"\n"
+	#random_str += chr(random.randint(97, 122))
 try:
 	os.system("rm random_file.txt")
 except:
