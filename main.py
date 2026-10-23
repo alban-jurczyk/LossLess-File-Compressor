@@ -87,7 +87,7 @@ def decompress(FILE_PATH):
 	with open(FILE_PATH+".dcmp", "w") as f:
 		f.write("")
 
-	for checkpoint, address in enumerate(checkpoints[:-2]):
+	for checkpoint, address in enumerate(checkpoints[:-1]):
 		with open(FILE_PATH, "rb") as f:
 			f.seek(address)
 			raw_length = "".join(f"{b:08b}" for b in f.read(2))
