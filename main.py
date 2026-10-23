@@ -102,7 +102,7 @@ def decompress(FILE_PATH):
 			with open(FILE_PATH+".dcmp", "ab") as f:
 				for num in decomp_part:
 					if num is not None:
-						f.write(num.to_bytes(8, "big"))
+						f.write(num.to_bytes(1, "big"))
 
 
 
